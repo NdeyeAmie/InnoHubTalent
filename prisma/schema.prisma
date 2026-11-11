@@ -1,0 +1,153 @@
+// prisma/schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMINSYSTEM
+  ADMIN
+  PRODUCTMANAGER
+  CONSULTANT
+}
+
+enum Status {
+  ACTIVE
+  INACTIVE
+}
+
+model User {
+  id         String   @id @default(cuid())
+  email      String   @unique
+  password   String
+  firstname  String?
+  lastname   String?
+  role       Role     @default(CONSULTANT)
+  department String?
+  status     Status   @default(ACTIVE)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  activities Activity[]
+}
+
+model Activity {
+  id        String   @id @default(cuid())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  action    String   // Description de l’action
+  type      String?  // Type d’action (login, update, create, delete, etc.)
+  meta      Json?    // Informations supplémentaires (optionnel)
+  createdAt DateTime @default(now())
+}
+
+
+model Product {
+  id              String        @id @default(cuid())
+  name            String
+  description     String?
+  type            ProductType
+  status          ProductStatus @default(RUNNING)
+  version         String?
+  category        String?
+  tags            String[]      // liste de mots-clés
+
+  thumbnail       String?       // URL (ex: Cloudinary)
+  flowchart       String?
+  readme          String?
+  launch_url      String?
+  demo            String?
+  userguide       String?
+  documentationUrl String?
+
+  repositoryUrl   String?
+  techStack       String[]      // ex: ["Next.js", "Prisma"]
+  dependencies    String[]      // ex: ["Postgres", "Redis"]
+
+  ownerId         String?
+  team            String?
+  updatedBy       String?
+  isPublic        Boolean       @default(false)
+
+  meta            Json?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+}
+
+
+enum ProductType {
+  APPLICATION
+  WORKFLOW
+  ROBOT
+}
+
+enum ProductStatus {
+  RUNNING
+  STOPPED
+  DEPRECATED
+}
+
+model Idea {
+  id                String    @id @default(cuid())
+  title             String
+  submissionDate    DateTime  @default(now())
+  author            String?
+  description       String?
+  problem           String?
+  targetClients     String?
+  expectedBenefits  String?
+  similarProducts   String?
+  differentiators   String?
+  resourcesNeeded   String?
+  priority          String?   // Nouveau / En cours / Validé
+  committeeComment  String?
+  features          Json?
+  mvpSteps          Json?
+  roiEstimate       Float?
+  feasibility       Feasibility?
+  impact            Impact?
+  riskLevel         RiskLevel?
+  status            IdeaStatus? @default(PROPOSED)
+  category          String?
+  votes             Int?        @default(0)
+  deadlineEstimate  DateTime?
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+enum Feasibility {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum Impact {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum RiskLevel {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum IdeaStatus {
+  PROPOSED
+  IN_REVIEW
+  APPROVED
+  REJECTED
+  IN_PROGRESS
+  DONE
+}
+
+
+
+
+
+
